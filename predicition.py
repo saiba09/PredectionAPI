@@ -88,7 +88,7 @@ def main(argv):
     print_header('Fetching list of first ten models')
     result = papi.list(maxResults=10, project='moodanalysis-1402').execute()
     print('List results:')
-    pprint.pprint(result)
+    pprint.pprint(result['kind'])
 
     # Start training request on a data set.
     #print_header('Submitting model training request')
@@ -127,7 +127,7 @@ def main(argv):
       result = papi.predict(
         body=body, id='mood-identifier-v1', project='moodanalysis-1402').execute()
       print('Prediction results for "%s"...' % sample_text)
-      pprint.pprint(result['outputLabel'])
+      pprint.pprint(result)
 
   except client.AccessTokenRefreshError:
     print ('The credentials have been revoked or expired, please re-run '
