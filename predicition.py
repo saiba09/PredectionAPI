@@ -128,7 +128,8 @@ def main(argv):
         body=body, id='mood-identifier-v1', project='moodanalysis-1402').execute()
       print('Prediction results for "%s"...' % sample_text)
       pprint.pprint(result)
-
+    print('-----------------------------'% sample_text)
+    print('-----------------------------'% body) 
   except client.AccessTokenRefreshError:
     print ('The credentials have been revoked or expired, please re-run '
            'the application to re-authorize.')

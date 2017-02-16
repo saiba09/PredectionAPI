@@ -1,39 +1,55 @@
 #!/usr/bin/env python
-#
-# Copyright 2012 Google Inc.
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
-# Author: Marc Cohen
+
 
 '''Configures all page handlers for the application.'''
-
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
-from home import HomePage
-from predict import PredictAPI
+from flask import Flask, render_template, request,url_for
+import argparse
+import logging
+import os
+import pprint
+import sys
+import time
+import httplib2
+from apiclient.discovery import build
+from apiclient import discovery
+from apiclient import sample_tools
+from oauth2client import client
 
-application = webapp.WSGIApplication(
-  [
-    ('/', HomePage),
-   
-    ('/predict', PredictAPI),
-  ],
-  debug=True)
 
-def main():
-  '''Runs the application.'''
-  run_wsgi_app(application)
 
-if __name__ == '__main__':
-  main()
+app = Flask(__name__)
+
+
+@app.route('/')
+def mainPage():
+	return render_template('home.html')
+@app.route('/predict', methods=['POST'])
+def prediction():
+        ERR_TAG = '<HttpError>'
+        ERR_END = '</HttpError>'
+	
+        service = build('prediction', 'v1.6')
+	try:
+		papi = service.trainedmodels()
+		val = request.form['tweet']
+		body = {'input': {'csvInstance': [val] }}
+		result = papi.predict(body=body, id='mood-identifier-v1', project='moodanalysis-1402').execute()
+	  	#result = "Happy!!"
+		return  result
+	except Exception, err:
+		err_str = str(err)
+		if err_str[0:len(ERR_TAG)] != ERR_TAG:
+			err_str = ERR_TAG + err_str + ERR_END
+			return  err_str
+
+
+
+@app.errorhandler(500)
+def server_error(e):
+# Log the error and stacktrace.
+	logging.exception('An error occurred during a request.')
+	return 'An internal error occurred.', 500
+
 

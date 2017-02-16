@@ -25,6 +25,7 @@ import pprint
 import sys
 import time
 import httplib2
+from google.appengine.ext import webapp
 from apiclient.discovery import build
 from apiclient import discovery
 from apiclient import sample_tools
@@ -34,6 +35,7 @@ ERR_TAG = '<HttpError>'
 ERR_END = '</HttpError>'
 
 class PredictAPI(webapp.RequestHandler):
+
   '''This class handles Ajax prediction requests, i.e. not user initiated
      web sessions but remote procedure calls initiated from the Javascript
      client code running the browser.
@@ -42,22 +44,18 @@ class PredictAPI(webapp.RequestHandler):
   def post(self):
     service = build('prediction', 'v1.6')
     try:
-       papi = service.trainedmodels()
+      papi = service.trainedmodels()
       # Read server-side OAuth 2.0 credentials from datastore and
       # raise an exception if credentials not found.
       val = self.request.get('tweet').encode('utf-8')
-      
       body = {'input': {'csvInstance': val}}
-      result = papi.predict(
-        body=body, id='mood-identifier-v1', project='moodanalysis-1402').execute()
+      result = papi.predict(body=body, id='mood-identifier-v1', project='moodanalysis-1402').execute()
       print('Prediction results for "%s"...' % val)
       pprint.pprint(result)
       self.response.out.write(json.dumps(ret))
 
     except Exception, err:
-      # Capture any API errors here and pass response from API back to
-      # Javascript client embedded in a special error indication tag.
       err_str = str(err)
       if err_str[0:len(ERR_TAG)] != ERR_TAG:
         err_str = ERR_TAG + err_str + ERR_END
-      self.response.out.write(err_str)
+        self.response.out.write(err_str)
