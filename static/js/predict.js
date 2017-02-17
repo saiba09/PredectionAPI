@@ -77,7 +77,9 @@ console.log("hi")
         success:function(res){
 		console.log("response")
 		console.log(res)
-                 $('#prediction_result').text(res);
+                var temp = JSON.parse(res);
+
+                 $('#prediction_result').text(temp.outputLabel);
 
 	}
   });

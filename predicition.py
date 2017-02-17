@@ -127,7 +127,7 @@ def main(argv):
       result = papi.predict(
         body=body, id='mood-identifier-v1', project='moodanalysis-1402').execute()
       print('Prediction results for "%s"...' % sample_text)
-      pprint.pprint(result)
+      pprint.pprint(result['outputLabel'])
     print('-----------------------------'% sample_text)
     print('-----------------------------'% body) 
   except client.AccessTokenRefreshError:

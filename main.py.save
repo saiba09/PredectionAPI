@@ -5,7 +5,6 @@
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from flask import Flask, render_template, request,url_for
-import json
 import argparse
 import logging
 import os
@@ -13,7 +12,6 @@ import pprint
 import sys
 import time
 import httplib2
-from flask import jsonify
 from apiclient.discovery import build
 from apiclient import discovery
 from apiclient import sample_tools
@@ -27,6 +25,7 @@ app = Flask(__name__)
 @app.route('/')
 def mainPage():
 	return render_template('home.html')
+
 @app.route('/predict', methods=['POST'])
 def prediction():
         ERR_TAG = '<HttpError>'
@@ -39,9 +38,7 @@ def prediction():
 		body = {'input': {'csvInstance': [val] }}
 		result = papi.predict(body=body, id='mood-identifier-v1', project='moodanalysis-1402').execute()
 	  	#result = "Happy!!"
-		res = json.dumps(result)
-
-		return  jsonify(res)
+		return  result
 	except Exception, err:
 		err_str = str(err)
 		if err_str[0:len(ERR_TAG)] != ERR_TAG:
